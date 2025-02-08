@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
-import { Check, ChevronsUpDown, Filter } from "lucide-react";
+import { Check, ChevronsUpDown, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { tagsAtom } from "./use-tags";
@@ -42,8 +42,10 @@ export default function Filters() {
 
   return (
     <Popover>
-      <PopoverTrigger>
-        <Filter className="h-4 w-4 text-muted-foreground hover:text-primary"></Filter>
+      <PopoverTrigger asChild>
+        <Button variant="ghost" className="md:h-fit md:px-2">
+          <SlidersHorizontal className="h-4 w-4" />
+        </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[275px] sm:w-[600px]" side="bottom" sideOffset={10} align="end">
         <div className="flex flex-col gap-4 pt-3">
