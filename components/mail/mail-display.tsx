@@ -11,11 +11,13 @@ import {
   Lock,
   Send,
   FileIcon,
+  ChevronsUpDown,
 } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { format } from "date-fns/format";
 import React from "react";
 
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 import { DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { DropdownMenu, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -24,6 +26,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "../ui/scroll-area";
 import { Mail } from "@/components/mail/data";
 import { useMail } from "./use-mail";
 import { Badge } from "../ui/badge";
@@ -157,77 +160,200 @@ export function MailDisplay({ mail, onClose }: MailDisplayProps) {
       {mail ? (
         <div className="flex flex-1 flex-col overflow-hidden">
           {/* Mail header */}
-          <div className="flex flex-col gap-4 px-4 py-4">
-            <div className="flex items-start gap-3">
-              <Avatar>
-                <AvatarImage alt={mail.name} />
-                <AvatarFallback>
-                  {mail.name
-                    .split(" ")
-                    .map((chunk) => chunk[0])
-                    .join("")}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 space-y-1">
-                <div className="font-semibold">{mail.name}</div>
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <span>{mail.email}</span>
-                  {isMuted && <BellOff className="h-4 w-4" />}
+
+          <div>
+            <ScrollArea className="h-[calc(58vh)]">
+              <div>
+                <div className="flex flex-col gap-4 px-4 py-4">
+                  <div className="flex items-start gap-3">
+                    <Avatar>
+                      <AvatarImage alt={mail.name} />
+                      <AvatarFallback>
+                        {mail.name
+                          .split(" ")
+                          .map((chunk) => chunk[0])
+                          .join("")}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 space-y-1">
+                      <div className="font-semibold">{mail.name}</div>
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <span>{mail.email}</span>
+                        {isMuted && <BellOff className="h-4 w-4" />}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <time className="text-xs text-muted-foreground">
+                          {format(new Date(mail.date), "PPp")}
+                        </time>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-auto p-0 text-xs underline"
+                            >
+                              Details
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-[280px] space-y-2" align="start">
+                            {/* TODO: Content is currently dummy and uses mail.email for all of them. need to add other values to email type */}
+                            <div className="text-xs">
+                              <span className="font-medium text-muted-foreground">From:</span>{" "}
+                              {mail.email}
+                            </div>
+                            <div className="text-xs">
+                              <span className="font-medium text-muted-foreground">Reply-To:</span>{" "}
+                              {mail.email}
+                            </div>
+                            <div className="text-xs">
+                              <span className="font-medium text-muted-foreground">To:</span>{" "}
+                              {mail.email}
+                            </div>
+                            <div className="text-xs">
+                              <span className="font-medium text-muted-foreground">Cc:</span>{" "}
+                              {mail.email}
+                            </div>
+                            <div className="text-xs">
+                              <span className="font-medium text-muted-foreground">Date:</span>{" "}
+                              {format(new Date(mail.date), "PPpp")}
+                            </div>
+                            <div className="text-xs">
+                              <span className="font-medium text-muted-foreground">Mailed-By:</span>{" "}
+                              {mail.email}
+                            </div>
+                            <div className="text-xs">
+                              <span className="font-medium text-muted-foreground">Signed-By:</span>{" "}
+                              {mail.email}
+                            </div>
+                            <div className="flex items-center gap-1 text-xs">
+                              <span className="font-medium text-muted-foreground">Security:</span>{" "}
+                              <Lock className="h-3 w-3" /> {mail.email}
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <time className="text-xs text-muted-foreground">
-                    {format(new Date(mail.date), "PPp")}
-                  </time>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-auto p-0 text-xs underline">
-                        Details
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[280px] space-y-2" align="start">
-                      {/* TODO: Content is currently dummy and uses mail.email for all of them. need to add other values to email type */}
-                      <div className="text-xs">
-                        <span className="font-medium text-muted-foreground">From:</span>{" "}
-                        {mail.email}
-                      </div>
-                      <div className="text-xs">
-                        <span className="font-medium text-muted-foreground">Reply-To:</span>{" "}
-                        {mail.email}
-                      </div>
-                      <div className="text-xs">
-                        <span className="font-medium text-muted-foreground">To:</span> {mail.email}
-                      </div>
-                      <div className="text-xs">
-                        <span className="font-medium text-muted-foreground">Cc:</span> {mail.email}
-                      </div>
-                      <div className="text-xs">
-                        <span className="font-medium text-muted-foreground">Date:</span>{" "}
-                        {format(new Date(mail.date), "PPpp")}
-                      </div>
-                      <div className="text-xs">
-                        <span className="font-medium text-muted-foreground">Mailed-By:</span>{" "}
-                        {mail.email}
-                      </div>
-                      <div className="text-xs">
-                        <span className="font-medium text-muted-foreground">Signed-By:</span>{" "}
-                        {mail.email}
-                      </div>
-                      <div className="flex items-center gap-1 text-xs">
-                        <span className="font-medium text-muted-foreground">Security:</span>{" "}
-                        <Lock className="h-3 w-3" /> {mail.email}
-                      </div>
-                    </PopoverContent>
-                  </Popover>
+
+                <Separator />
+
+                {/* Mail content */}
+                <div className="flex-1 overflow-y-auto px-8 py-4">
+                  <div className="whitespace-pre-wrap text-sm leading-relaxed">{mail.text}</div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <Separator />
+              <Collapsible>
+                <CollapsibleTrigger asChild>
+                  <div className="flex cursor-pointer items-center">
+                    <Separator className="w-8" />
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="sm" className="rounded-full">
+                          <ChevronsUpDown className="h-4 w-4" />
+                          <span className="sr-only">Toggle</span>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Toggle</TooltipContent>
+                    </Tooltip>
+                    <Separator />
+                  </div>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <div>
+                    <div className="flex flex-col gap-4 px-4 py-4">
+                      <div className="flex items-start gap-3">
+                        <Avatar>
+                          <AvatarImage alt={mail.name} />
+                          <AvatarFallback>
+                            {mail.name
+                              .split(" ")
+                              .map((chunk) => chunk[0])
+                              .join("")}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 space-y-1">
+                          <div className="flex gap-3">
+                            <div className="text-md flex-none font-semibold">{mail.name}</div>
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <span>{mail.email}</span>
+                              {isMuted && <BellOff className="h-4 w-4" />}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <time className="text-xs text-muted-foreground">
+                              {format(new Date(mail.date), "PPp")}
+                            </time>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-auto p-0 text-xs underline"
+                                >
+                                  Details
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-[280px] space-y-2" align="start">
+                                {/* TODO: Content is currently dummy and uses mail.email for all of them. need to add other values to email type */}
+                                <div className="text-xs">
+                                  <span className="font-medium text-muted-foreground">From:</span>{" "}
+                                  {mail.email}
+                                </div>
+                                <div className="text-xs">
+                                  <span className="font-medium text-muted-foreground">
+                                    Reply-To:
+                                  </span>{" "}
+                                  {mail.email}
+                                </div>
+                                <div className="text-xs">
+                                  <span className="font-medium text-muted-foreground">To:</span>{" "}
+                                  {mail.email}
+                                </div>
+                                <div className="text-xs">
+                                  <span className="font-medium text-muted-foreground">Cc:</span>{" "}
+                                  {mail.email}
+                                </div>
+                                <div className="text-xs">
+                                  <span className="font-medium text-muted-foreground">Date:</span>{" "}
+                                  {format(new Date(mail.date), "PPpp")}
+                                </div>
+                                <div className="text-xs">
+                                  <span className="font-medium text-muted-foreground">
+                                    Mailed-By:
+                                  </span>{" "}
+                                  {mail.email}
+                                </div>
+                                <div className="text-xs">
+                                  <span className="font-medium text-muted-foreground">
+                                    Signed-By:
+                                  </span>{" "}
+                                  {mail.email}
+                                </div>
+                                <div className="flex items-center gap-1 text-xs">
+                                  <span className="font-medium text-muted-foreground">
+                                    Security:
+                                  </span>{" "}
+                                  <Lock className="h-3 w-3" /> {mail.email}
+                                </div>
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
 
-          {/* Mail content */}
-          <div className="flex-1 overflow-y-auto px-8 py-4">
-            <div className="whitespace-pre-wrap text-sm leading-relaxed">{mail.text}</div>
+                    <Separator />
+
+                    {/* Mail content */}
+                    <div className="flex-1 overflow-y-auto px-8 py-4">
+                      <div className="whitespace-pre-wrap text-sm leading-relaxed">{mail.text}</div>
+                    </div>
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            </ScrollArea>
           </div>
 
           {/* Reply section */}
