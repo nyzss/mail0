@@ -167,7 +167,7 @@ export function MailDisplay({ mail, onClose, isMobile }: MailDisplayProps) {
           </div>
         </div>
 
-        <div className="flex h-screen flex-col">
+        <div className="flex h-[calc(93vh)] flex-col">
           {/* Mail header */}
           <div className="flex-1 overflow-hidden">
             <ScrollArea className="h-full">
@@ -246,7 +246,7 @@ export function MailDisplay({ mail, onClose, isMobile }: MailDisplayProps) {
               <Separator />
 
               {/* Mail content */}
-              <div className="flex-1 overflow-y-auto px-8 py-4">
+              <div className="flex-1 overflow-y-auto px-8 py-4 pb-[20px]">
                 <div className="whitespace-pre-wrap text-sm leading-relaxed">
                   {currentMail.text}
                 </div>
@@ -287,14 +287,12 @@ export function MailDisplay({ mail, onClose, isMobile }: MailDisplayProps) {
                                   </AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1 space-y-1">
-                                  <div className="flex gap-3">
-                                    <div className="text-md flex-none font-semibold">
-                                      {reply.name}
-                                    </div>
-                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                      <span>{reply.email}</span>
-                                      {isMuted && <BellOff className="h-4 w-4" />}
-                                    </div>
+                                  <div className="text-md flex-none font-semibold">
+                                    {reply.name}
+                                  </div>
+                                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                    <span>{reply.email}</span>
+                                    {isMuted && <BellOff className="h-4 w-4" />}
                                   </div>
                                   <div className="flex items-center gap-2">
                                     <time className="text-xs text-muted-foreground">
@@ -371,7 +369,7 @@ export function MailDisplay({ mail, onClose, isMobile }: MailDisplayProps) {
                         </CollapsibleTrigger>
                         <CollapsibleContent>
                           {/* Mail content */}
-                          <div className="flex-1 overflow-y-auto px-8 py-4">
+                          <div className="flex-1 overflow-y-auto px-8 py-4 pb-[50px]">
                             <div className="whitespace-pre-wrap text-sm leading-relaxed">
                               {reply.text}
                             </div>
@@ -379,7 +377,9 @@ export function MailDisplay({ mail, onClose, isMobile }: MailDisplayProps) {
                         </CollapsibleContent>
                       </Collapsible>
 
-                      {currentMail.replies.length - 1 !== index && <Separator />}
+                      {(currentMail.replies.length - 1 !== index && <Separator />) || (
+                        <div className="pb-[70px]" />
+                      )}
                     </div>
                   ))}
                 </CollapsibleContent>
@@ -388,7 +388,7 @@ export function MailDisplay({ mail, onClose, isMobile }: MailDisplayProps) {
           </div>
 
           {/* Reply section */}
-          <div className="w-full flex-none bg-background px-4 pb-[4.5rem] pt-2">
+          <div className="sticky bottom-0 w-full bg-background px-4 py-2">
             <form className="relative space-y-2.5 rounded-[calc(var(--radius)-2px)] border bg-secondary/50 p-4 shadow-sm">
               <div className="flex items-center justify-between text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
