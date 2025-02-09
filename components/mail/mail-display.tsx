@@ -203,7 +203,6 @@ export function MailDisplay({ mail, onClose, isMobile }: MailDisplayProps) {
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-[280px] space-y-2" align="start">
-                          {/* TODO: Content is currently dummy and uses mail.email for all of them. need to add other values to email type */}
                           <div className="text-xs">
                             <span className="font-medium text-muted-foreground">From:</span>{" "}
                             {currentMail.email}
@@ -309,7 +308,6 @@ export function MailDisplay({ mail, onClose, isMobile }: MailDisplayProps) {
                                         </Button>
                                       </PopoverTrigger>
                                       <PopoverContent className="w-[280px] space-y-2" align="start">
-                                        {/* TODO: Content is currently dummy and uses mail.email for all of them. need to add other values to email type */}
                                         <div className="text-xs">
                                           <span className="font-medium text-muted-foreground">
                                             From:
@@ -387,8 +385,7 @@ export function MailDisplay({ mail, onClose, isMobile }: MailDisplayProps) {
             </ScrollArea>
           </div>
 
-          {/* Reply section */}
-          <div className="sticky bottom-0 w-full bg-background px-4 py-2">
+          <div className="sticky bottom-2 w-full bg-background px-4 py-2">
             <form className="relative space-y-2.5 rounded-[calc(var(--radius)-2px)] border bg-secondary/50 p-4 shadow-sm">
               <div className="flex items-center justify-between text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
