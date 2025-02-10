@@ -12,14 +12,20 @@ import {
   Send,
   FileIcon,
   ChevronsUpDown,
+  Ellipsis,
+  Trash2,
 } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { format } from "date-fns/format";
 import { cn } from "@/lib/utils";
 import React from "react";
 
+import {
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
-import { DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { DropdownMenu, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -360,6 +366,38 @@ export function MailDisplay({ mail, onClose, isMobile }: MailDisplayProps) {
                                     </Popover>
                                   </div>
                                 </div>
+                                <Tooltip>
+                                  <TooltipTrigger asChild onClick={(e) => e.stopPropagation()}>
+                                    <DropdownMenu>
+                                      <DropdownMenuTrigger asChild>
+                                        <Button
+                                          variant="ghost"
+                                          disabled={!currentMail}
+                                          className="md:h-fit md:px-2"
+                                        >
+                                          <Ellipsis className="h-4 w-4" />
+                                          <span className="sr-only">More</span>
+                                        </Button>
+                                      </DropdownMenuTrigger>
+                                      <DropdownMenuContent onClick={(e) => e.stopPropagation()}>
+                                        <DropdownMenuItem>
+                                          <Reply />
+                                          Reply
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem>
+                                          <Forward />
+                                          Forward
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem>
+                                          <Trash2 />
+                                          Delete Mail
+                                        </DropdownMenuItem>
+                                      </DropdownMenuContent>
+                                    </DropdownMenu>
+                                  </TooltipTrigger>
+                                  <TooltipContent>More</TooltipContent>
+                                </Tooltip>
                               </div>
                             </div>
                             <Separator />
