@@ -5,6 +5,7 @@ import { ComponentProps, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "../ui/skeleton";
 import { InitialThread } from "@/types";
+import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
 interface MailListProps {
@@ -47,7 +48,7 @@ const Thread = ({ id }: { id: string }) => {
         <div className="flex w-full items-center justify-between">
           <div className="flex items-center gap-2">
             {data.total > 1 && (
-              <p className="rounded-full border border-muted-foreground px-1.5 py-0.5 text-xs font-bold">
+              <p className="rounded-full border border-dashed border-muted-foreground px-1.5 py-0.5 text-xs font-bold">
                 {data.total}
               </p>
             )}
@@ -63,7 +64,9 @@ const Thread = ({ id }: { id: string }) => {
               ) : null}
             </p>
           </div>
-          <p className="pr-2 text-xs font-normal opacity-70 group-hover:opacity-100">Feb 10</p>
+          <p className="pr-2 text-xs font-normal opacity-70 group-hover:opacity-100">
+            {format(new Date(data.message.receivedOn), "MMM d")}
+          </p>
         </div>
         <p className="mt-1 text-xs font-medium opacity-70 group-hover:opacity-100">
           {data.message.subject}
