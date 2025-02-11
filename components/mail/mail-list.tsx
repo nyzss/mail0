@@ -113,9 +113,6 @@ const Thread = ({ message }: { message: InitialThread }) => {
           </p>
         </div>
         <p className="mt-1 text-xs font-medium opacity-70 group-hover:opacity-100">
-          {message.subject}
-        </p>
-        <p className="text-[12px] font-medium leading-tight opacity-40 group-hover:opacity-100">
           {message.title}
         </p>
       </div>
