@@ -29,11 +29,6 @@ export interface SidebarData {
   navMain: NavSection[];
 }
 
-export interface ThreadData {
-  message: ParsedMessage;
-  total: number;
-}
-
 export interface ParsedMessage {
   id: string;
   title: string;
@@ -45,8 +40,22 @@ export interface ParsedMessage {
   subject: string;
   receivedOn: string;
   unread: boolean;
+  body: string;
+  processedHtml: string;
+  blobUrl: string;
+  totalReplies: number;
 }
 
 export interface InitialThread {
   id: string;
+  title: string;
+  tags: string[];
+  sender: {
+    name: string;
+    email: string;
+  };
+  receivedOn: string;
+  unread: boolean;
+  subject: string;
+  totalReplies: number;
 }
