@@ -38,6 +38,7 @@ const googleDriver = (config: IConfig): MailManager => {
   }): ParsedMessage => {
     const receivedOn = payload.headers.find((h) => h.name === "Date")?.value || "Failed";
     const sender = payload.headers.find((h) => h.name === "From")?.value || "Failed";
+    const subject = payload.headers.find((h) => h.name === "Subject")?.value || "Failed";
     const [name, email] = sender.split("<");
     return {
       id,
@@ -47,6 +48,7 @@ const googleDriver = (config: IConfig): MailManager => {
         name: name.replace(/"/g, ""),
         email: `<${email}`,
       },
+      subject: subject,
       unread: labelIds.includes("UNREAD"),
       receivedOn,
     };
@@ -63,7 +65,7 @@ const googleDriver = (config: IConfig): MailManager => {
       const { folder: normalizedFolder, q: normalizedQ } = normalizeSearch(folder, q ?? "");
       const labelIds = [..._labelIds];
       if (normalizedFolder) labelIds.push(normalizedFolder.toUpperCase());
-      const res = await gmail.users.messages.list({
+      const res = await gmail.users.threads.list({
         userId: "me",
         q: normalizedQ ? normalizedQ : undefined,
         labelIds,
@@ -71,9 +73,16 @@ const googleDriver = (config: IConfig): MailManager => {
       });
       return res.data;
     },
+
     get: async (id: string) => {
-      const res = await gmail.users.messages.get({ userId: "me", id });
-      return parse(res.data as any);
+      const res = await gmail.users.threads.get({ userId: "me", id });
+      // get only the first message of the thread to display
+      // TODO: change this to get all messages in the thread and display them in the frontend
+      const message = res.data.messages?.[0];
+      return {
+        total: res.data.messages?.length || 0,
+        message: parse(message as any),
+      };
     },
     create: async (data: any) => {
       const res = await gmail.users.messages.send({ userId: "me", requestBody: data });

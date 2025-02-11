@@ -1,6 +1,6 @@
 "use client";
 import { $fetch, useSession } from "@/lib/auth-client";
-import { InitialThread, ParsedMessage } from "@/types";
+import { InitialThread, ThreadData } from "@/types";
 import { BASE_URL } from "@/lib/constants";
 import useSWR from "swr";
 
@@ -19,17 +19,17 @@ const fetchEmails = async (args: any[]) => {
   }).then((e) => e.data)) as RawResponse;
 };
 
-const fetchEmail = async (args: any[]): Promise<ParsedMessage> => {
+const fetchEmail = async (args: any[]): Promise<ThreadData> => {
   const [_, id] = args;
   return await $fetch(`/api/v1/mail/${id}`, {
     baseURL: BASE_URL,
-  }).then((e) => e.data as ParsedMessage);
+  }).then((e) => e.data as ThreadData);
 };
 
 // Based on gmail
 interface RawResponse {
   nextPageToken: number;
-  messages: InitialThread[];
+  threads: InitialThread[];
   resultSizeEstimate: number;
 }
 
@@ -45,7 +45,7 @@ export const useThreads = (folder: string, labelIds?: string[], query?: string, 
 
 export const useThread = (id: string) => {
   const { data: session } = useSession();
-  const { data, isLoading, error } = useSWR<ParsedMessage>([session?.user.id, id], fetchEmail);
+  const { data, isLoading, error } = useSWR<ThreadData>([session?.user.id, id], fetchEmail);
 
   return { data, isLoading, error };
 };

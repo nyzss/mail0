@@ -29,6 +29,11 @@ export interface SidebarData {
   navMain: NavSection[];
 }
 
+export interface ThreadData {
+  message: ParsedMessage;
+  total: number;
+}
+
 export interface ParsedMessage {
   id: string;
   title: string;
@@ -37,6 +42,7 @@ export interface ParsedMessage {
     name: string;
     email: string;
   };
+  subject: string;
   receivedOn: string;
   unread: boolean;
 }
