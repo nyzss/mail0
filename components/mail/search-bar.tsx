@@ -6,7 +6,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Search, SlidersHorizontal, CalendarIcon } from "lucide-react";
+import { Search, SlidersHorizontal, CalendarIcon, X } from "lucide-react";
 import { useSearchValue } from "@/hooks/use-search-value";
 import { Separator } from "@/components/ui/separator";
 import { Calendar } from "@/components/ui/calendar";
@@ -67,27 +67,29 @@ function DateFilter() {
   );
 }
 
+type SearchForm = {
+  subject: string;
+  from: string;
+  to: string;
+  q: string;
+};
+
 export function SearchBar() {
   const [, setSearchValue] = useSearchValue();
-  const [value, setValue] = useState({
+  const [value, setValue] = useState<SearchForm>({
     subject: "",
     from: "",
     to: "",
     q: "",
   });
 
-  const form = useForm({
-    defaultValues: {
-      subject: "",
-      from: "",
-      to: "",
-      q: "",
-    },
+  const form = useForm<SearchForm>({
+    defaultValues: value,
   });
 
   useEffect(() => {
     const subscription = form.watch((data) => {
-      setValue(data as { subject: string; from: string; to: string; q: string });
+      setValue(data as SearchForm);
     });
     return () => subscription.unsubscribe();
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
@@ -102,10 +104,21 @@ export function SearchBar() {
     [value],
   );
 
-  const submitSearch = (data: { subject: string; from: string; to: string; q: string }) => {
-    // TODO: add logic for other fields
+  const submitSearch = (data: SearchForm) => {
+    // TODO: if we add auto completion for multiple "senders" or "recipients" filter we need to use this
+    // const from = data.from.length > 0 ? `from:(${data.from.join(",")})` : "";
+    // const to = data.to.length > 0 ? `to:(${data.to.join(",")})` : "";
+
+    const from = data.from ? `from:(${data.from})` : "";
+    const to = data.to ? `to:(${data.to})` : "";
+    const subject = data.subject ? `subject:(${data.subject})` : "";
+
+    // console.log();
+
+    const searchQuery = `${data.q} ${from} ${to} ${subject}`;
+
     setSearchValue({
-      value: data.q,
+      value: searchQuery,
       highlight: data.q,
     });
   };
@@ -118,6 +131,8 @@ export function SearchBar() {
     });
   };
 
+  const filtering = value.q.length > 0 || value.from.length > 0 || value.to.length > 0;
+
   return (
     <div className="relative flex-1 px-4 md:max-w-[600px] md:px-8">
       <Form {...form}>
@@ -128,7 +143,14 @@ export function SearchBar() {
             className="h-7 w-full rounded-md pl-8 pr-14 text-muted-foreground"
             {...form.register("q")}
           />
-          <div className="absolute right-2 flex items-center">
+          <div className="absolute right-2 flex items-center gap-1">
+            {filtering && (
+              <X
+                onClick={resetSearch}
+                className="h-5 w-5 cursor-pointer text-muted-foreground"
+                aria-hidden="true"
+              />
+            )}
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-5 w-5 p-0 hover:bg-transparent">
@@ -237,12 +259,11 @@ export function SearchBar() {
                     </div>
                   </div>
 
-                  {/* Actions */}
                   <div className="flex items-center justify-between pt-2">
                     <Button onClick={resetSearch} variant="ghost" size="sm" className="h-7 text-xs">
                       Reset
                     </Button>
-                    <Button size="sm" className="h-7 text-xs">
+                    <Button size="sm" className="h-7 text-xs" type="submit">
                       Apply Filters
                     </Button>
                   </div>
