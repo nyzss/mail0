@@ -17,6 +17,7 @@ import { useState, useEffect } from "react";
 import { format, subDays } from "date-fns";
 import { useForm } from "react-hook-form";
 import { useDebounce } from "react-use";
+import { Toggle } from "../ui/toggle";
 import { Form } from "../ui/form";
 import { cn } from "@/lib/utils";
 
@@ -68,6 +69,7 @@ type SearchForm = {
   to: string;
   q: string;
   dateRange: DateRange;
+  category: string;
 };
 
 export function SearchBar() {
@@ -81,6 +83,7 @@ export function SearchBar() {
       from: undefined,
       to: undefined,
     },
+    category: "",
   });
 
   const form = useForm<SearchForm>({
@@ -116,8 +119,8 @@ export function SearchBar() {
       ? `after:${format(data.dateRange.from, "MM/dd/yyyy")}`
       : "";
     const dateBefore = data.dateRange.to ? `before:${format(data.dateRange.to, "MM/dd/yyyy")}` : "";
-
-    const searchQuery = `${data.q} ${from} ${to} ${subject} ${dateAfter} ${dateBefore}`;
+    const category = data.category ? `category:(${data.category})` : "";
+    const searchQuery = `${data.q} ${from} ${to} ${subject} ${dateAfter} ${dateBefore} ${category}`;
 
     setSearchValue({
       value: searchQuery,
@@ -243,17 +246,52 @@ export function SearchBar() {
 
                   {/* Labels */}
                   <div>
-                    <h2 className="mb-2 text-xs font-medium text-muted-foreground">Labels</h2>
+                    <h2 className="mb-2 text-xs font-medium text-muted-foreground">Category</h2>
                     <div className="flex flex-wrap gap-1.5">
-                      <Button variant="outline" size="sm" className="h-7 text-xs">
-                        Work
-                      </Button>
-                      <Button variant="outline" size="sm" className="h-7 text-xs">
-                        Personal
-                      </Button>
-                      <Button variant="outline" size="sm" className="h-7 text-xs">
-                        Important
-                      </Button>
+                      <Toggle
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs"
+                        pressed={form.watch("category") === "primary"}
+                        onPressedChange={(pressed) =>
+                          form.setValue("category", pressed ? "primary" : "")
+                        }
+                      >
+                        Primary
+                      </Toggle>
+                      <Toggle
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs"
+                        pressed={form.watch("category") === "updates"}
+                        onPressedChange={(pressed) =>
+                          form.setValue("category", pressed ? "updates" : "")
+                        }
+                      >
+                        Updates
+                      </Toggle>
+                      <Toggle
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs"
+                        pressed={form.watch("category") === "promotions"}
+                        onPressedChange={(pressed) =>
+                          form.setValue("category", pressed ? "promotions" : "")
+                        }
+                      >
+                        Promotions
+                      </Toggle>
+                      <Toggle
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs"
+                        pressed={form.watch("category") === "social"}
+                        onPressedChange={(pressed) =>
+                          form.setValue("category", pressed ? "social" : "")
+                        }
+                      >
+                        Social
+                      </Toggle>
                       <Button
                         variant="outline"
                         size="sm"
