@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { format, subDays } from "date-fns";
 import { useForm } from "react-hook-form";
+import { useDebounce } from "react-use";
 import { Form } from "../ui/form";
 import { cn } from "@/lib/utils";
 
@@ -68,6 +69,13 @@ function DateFilter() {
 
 export function SearchBar() {
   const [, setSearchValue] = useSearchValue();
+  const [value, setValue] = useState({
+    subject: "",
+    from: "",
+    to: "",
+    q: "",
+  });
+
   const form = useForm({
     defaultValues: {
       subject: "",
@@ -80,13 +88,22 @@ export function SearchBar() {
   /* eslint-disable-next-line react-hooks/exhaustive-deps */
   useEffect(() => {
     const subscription = form.watch((data) => {
-      submitSearch(data as { subject: string; from: string; to: string; q: string });
+      setValue(data as { subject: string; from: string; to: string; q: string });
     });
     return () => subscription.unsubscribe();
   }, [form.watch]);
 
+  // debounce the search, so it doesnt spam with requests
+  useDebounce(
+    () => {
+      submitSearch(value);
+    },
+    250,
+    [value],
+  );
+
   const submitSearch = (data: { subject: string; from: string; to: string; q: string }) => {
-    // add logic for other fields
+    // TODO: add logic for other fields
     setSearchValue({
       value: data.q,
       highlight: data.q,
