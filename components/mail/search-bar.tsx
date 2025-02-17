@@ -85,12 +85,12 @@ export function SearchBar() {
     },
   });
 
-  /* eslint-disable-next-line react-hooks/exhaustive-deps */
   useEffect(() => {
     const subscription = form.watch((data) => {
       setValue(data as { subject: string; from: string; to: string; q: string });
     });
     return () => subscription.unsubscribe();
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [form.watch]);
 
   // debounce the search, so it doesnt spam with requests

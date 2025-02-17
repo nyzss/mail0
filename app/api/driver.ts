@@ -87,14 +87,12 @@ const googleDriver = async (config: IConfig): Promise<MailManager> => {
     ParsedMessage,
     "body" | "processedHtml" | "blobUrl" | "totalReplies"
   > => {
-    const paylodsHeaders = payload?.headers?.map((h) => ({
-      name: h.name?.toLowerCase(),
-      value: h.value?.toLowerCase(),
-    }));
-
-    const receivedOn = paylodsHeaders?.find((h) => h.name === "date")?.value || "Failed";
-    const sender = paylodsHeaders?.find((h) => h.name === "from")?.value || "Failed";
-    const subject = paylodsHeaders?.find((h) => h.name === "subject")?.value || "Failed";
+    const receivedOn =
+      payload?.headers?.find((h) => h.name?.toLowerCase() === "date")?.value || "Failed";
+    const sender =
+      payload?.headers?.find((h) => h.name?.toLowerCase() === "from")?.value || "Failed";
+    const subject =
+      payload?.headers?.find((h) => h.name?.toLowerCase() === "subject")?.value || "Failed";
     const [name, email] = sender.split("<");
     return {
       id: id || "ERROR",
