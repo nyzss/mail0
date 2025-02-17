@@ -22,12 +22,7 @@ import { cn } from "@/lib/utils";
 
 const inboxes = ["All Mail", "Inbox", "Drafts", "Sent", "Spam", "Trash", "Archive"];
 
-function DateFilter() {
-  const [date, setDate] = useState<DateRange | undefined>({
-    from: subDays(new Date(), 7),
-    to: new Date(),
-  });
-
+function DateFilter({ date, setDate }: { date: DateRange; setDate: (date: DateRange) => void }) {
   return (
     <div className="grid gap-2">
       <Popover>
@@ -47,7 +42,7 @@ function DateFilter() {
                 format(date.from, "LLL dd, y")
               )
             ) : (
-              <span>Pick a date</span>
+              <span>Pick a date or a range</span>
             )}
           </Button>
         </PopoverTrigger>
@@ -57,7 +52,7 @@ function DateFilter() {
             mode="range"
             defaultMonth={date?.from}
             selected={date}
-            onSelect={setDate}
+            onSelect={(range) => range && setDate(range)}
             numberOfMonths={2}
             disabled={(date) => date > new Date()}
           />
@@ -72,6 +67,7 @@ type SearchForm = {
   from: string;
   to: string;
   q: string;
+  dateRange: DateRange;
 };
 
 export function SearchBar() {
@@ -81,6 +77,10 @@ export function SearchBar() {
     from: "",
     to: "",
     q: "",
+    dateRange: {
+      from: undefined,
+      to: undefined,
+    },
   });
 
   const form = useForm<SearchForm>({
@@ -112,10 +112,12 @@ export function SearchBar() {
     const from = data.from ? `from:(${data.from})` : "";
     const to = data.to ? `to:(${data.to})` : "";
     const subject = data.subject ? `subject:(${data.subject})` : "";
+    const dateAfter = data.dateRange.from
+      ? `after:${format(data.dateRange.from, "MM/dd/yyyy")}`
+      : "";
+    const dateBefore = data.dateRange.to ? `before:${format(data.dateRange.to, "MM/dd/yyyy")}` : "";
 
-    // console.log();
-
-    const searchQuery = `${data.q} ${from} ${to} ${subject}`;
+    const searchQuery = `${data.q} ${from} ${to} ${subject} ${dateAfter} ${dateBefore}`;
 
     setSearchValue({
       value: searchQuery,
@@ -230,7 +232,10 @@ export function SearchBar() {
                       <label className="text-xs font-medium text-muted-foreground">
                         Date Range
                       </label>
-                      <DateFilter />
+                      <DateFilter
+                        date={value.dateRange}
+                        setDate={(range) => form.setValue("dateRange", range)}
+                      />
                     </div>
                   </div>
 
