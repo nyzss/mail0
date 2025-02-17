@@ -120,8 +120,8 @@ export function SearchBar() {
 
   return (
     <div className="relative flex-1 px-4 md:max-w-[600px] md:px-8">
-      <form className="relative flex items-center">
-        <Form {...form}>
+      <Form {...form}>
+        <form className="relative flex items-center" onSubmit={form.handleSubmit(submitSearch)}>
           <Search className="absolute left-2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
           <Input
             placeholder="Search"
@@ -250,8 +250,8 @@ export function SearchBar() {
               </PopoverContent>
             </Popover>
           </div>
-        </Form>
-      </form>
+        </form>
+      </Form>
     </div>
   );
 }
