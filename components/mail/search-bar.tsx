@@ -141,7 +141,8 @@ export function SearchBar() {
     });
   };
 
-  // maybe bad but the alternatives are less readable and intuitive, might switch to it if we add more filters
+  // maybe bad but the alternatives are less readable and intuitive,
+  // might switch to it if we have to add more filters/search options
   const filtering =
     value.q.length > 0 ||
     value.from.length > 0 ||
@@ -189,13 +190,28 @@ export function SearchBar() {
                       Quick Filters
                     </h2>
                     <div className="flex flex-wrap gap-1.5">
-                      <Button variant="secondary" size="sm" className="h-7 text-xs">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() => form.setValue("q", "is:unread")}
+                      >
                         Unread
                       </Button>
-                      <Button variant="secondary" size="sm" className="h-7 text-xs">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() => form.setValue("q", "has:attachment")}
+                      >
                         Has Attachment
                       </Button>
-                      <Button variant="secondary" size="sm" className="h-7 text-xs">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() => form.setValue("q", "is:starred")}
+                      >
                         Starred
                       </Button>
                     </div>
