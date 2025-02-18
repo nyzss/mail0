@@ -21,7 +21,7 @@ import { Form } from "../ui/form";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
-const inboxes = ["All Mail", "Inbox", "Drafts", "Sent", "Spam", "Trash", "Archive"];
+const inboxes = ["inbox", "spam", "trash", "unread", "starred", "important", "sent", "draft"];
 
 function DateFilter({ date, setDate }: { date: DateRange; setDate: (date: DateRange) => void }) {
   return (
@@ -70,11 +70,13 @@ type SearchForm = {
   q: string;
   dateRange: DateRange;
   category: string;
+  folder: string;
 };
 
 export function SearchBar() {
   const [, setSearchValue] = useSearchValue();
   const [value, setValue] = useState<SearchForm>({
+    folder: "",
     subject: "",
     from: "",
     to: "",
@@ -109,8 +111,8 @@ export function SearchBar() {
 
   const submitSearch = (data: SearchForm) => {
     // TODO: if we add auto completion for multiple "senders" or "recipients" filter we need to use this
-    // const from = data.from.length > 0 ? `from:(${data.from.join(",")})` : "";
-    // const to = data.to.length > 0 ? `to:(${data.to.join(",")})` : "";
+    // const from = data.from.length > 0 ? `from:(${data.from.join(" OR ")})` : "";
+    // const to = data.to.length > 0 ? `to:(${data.to.join(" OR ")})` : "";
 
     const from = data.from ? `from:(${data.from})` : "";
     const to = data.to ? `to:(${data.to})` : "";
@@ -121,10 +123,12 @@ export function SearchBar() {
     const dateBefore = data.dateRange.to ? `before:${format(data.dateRange.to, "MM/dd/yyyy")}` : "";
     const category = data.category ? `category:(${data.category})` : "";
     const searchQuery = `${data.q} ${from} ${to} ${subject} ${dateAfter} ${dateBefore} ${category}`;
+    const folder = data.folder ? data.folder.toUpperCase() : "";
 
     setSearchValue({
       value: searchQuery,
       highlight: data.q,
+      folder: folder,
     });
   };
 
@@ -133,10 +137,19 @@ export function SearchBar() {
     setSearchValue({
       value: "",
       highlight: "",
+      folder: "",
     });
   };
 
-  const filtering = value.q.length > 0 || value.from.length > 0 || value.to.length > 0;
+  // maybe bad but the alternatives are less readable and intuitive, might switch to it if we add more filters
+  const filtering =
+    value.q.length > 0 ||
+    value.from.length > 0 ||
+    value.to.length > 0 ||
+    value.dateRange.from ||
+    value.dateRange.to ||
+    value.category ||
+    value.folder;
 
   return (
     <div className="relative flex-1 px-4 md:max-w-[600px] md:px-8">
@@ -167,12 +180,10 @@ export function SearchBar() {
               </PopoverTrigger>
               <PopoverContent
                 className="w-[min(calc(100vw-2rem),400px)] p-3 sm:w-[500px] md:w-[600px] md:p-4"
-                side="bottom"
                 sideOffset={10}
                 align="end"
               >
                 <div className="space-y-4">
-                  {/* Quick Filters */}
                   <div>
                     <h2 className="mb-2 text-xs font-medium text-muted-foreground">
                       Quick Filters
@@ -192,17 +203,19 @@ export function SearchBar() {
 
                   <Separator className="my-2" />
 
-                  {/* Main Filters */}
                   <div className="grid gap-4">
                     <div className="space-y-1.5">
                       <label className="text-xs font-medium text-muted-foreground">Search in</label>
-                      <Select>
-                        <SelectTrigger className="h-8">
+                      <Select
+                        onValueChange={(value) => form.setValue("folder", value)}
+                        value={form.watch("folder")}
+                      >
+                        <SelectTrigger className="h-8 capitalize">
                           <SelectValue placeholder="All Mail" />
                         </SelectTrigger>
                         <SelectContent>
                           {inboxes.map((inbox) => (
-                            <SelectItem key={inbox} value={inbox}>
+                            <SelectItem key={inbox} value={inbox} className="capitalize">
                               {inbox}
                             </SelectItem>
                           ))}
@@ -244,7 +257,6 @@ export function SearchBar() {
 
                   <Separator className="my-2" />
 
-                  {/* Labels */}
                   <div>
                     <h2 className="mb-2 text-xs font-medium text-muted-foreground">Category</h2>
                     <div className="flex flex-wrap gap-1.5">
