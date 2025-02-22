@@ -27,6 +27,7 @@ import { useMail } from "@/components/mail/use-mail";
 import { SidebarToggle } from "../ui/sidebar-toggle";
 import { Skeleton } from "@/components/ui/skeleton";
 import { type Mail } from "@/components/mail/data";
+import { useSettings } from "@/hooks/use-settings";
 import { useSearchParams } from "next/navigation";
 import { useThreads } from "@/hooks/use-threads";
 import { Button } from "@/components/ui/button";
@@ -34,7 +35,6 @@ import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { SearchBar } from "./search-bar";
 import { cn } from "@/lib/utils";
-
 interface MailProps {
   accounts: {
     label: string;
@@ -58,6 +58,7 @@ export function Mail({ folder }: MailProps) {
   const [filterValue, setFilterValue] = useState<"all" | "unread">("all");
   const router = useRouter();
   const { data: session, isPending } = useSession();
+  const [settings] = useSettings();
 
   useEffect(() => {
     if (!session?.user && !isPending) {
@@ -88,7 +89,12 @@ export function Mail({ folder }: MailProps) {
     data: threadsResponse,
     isLoading,
     isValidating,
-  } = useThreads(searchValue.folder || folder, labels, searchValue.value);
+  } = useThreads(
+    searchValue.folder || settings.inboxLayout || folder,
+    labels,
+    searchValue.value,
+    settings.maxResults || 10,
+  );
   const [open, setOpen] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
