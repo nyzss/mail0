@@ -11,6 +11,7 @@ import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
+import { toast } from "sonner";
 import * as z from "zod";
 
 // TODO: More customization options
@@ -40,6 +41,9 @@ export default function AppearancePage() {
       maxResults: values.maxResults || prev.maxResults,
     }));
     setIsSaving(false);
+    toast.success("Settings saved", {
+      className: "bg-foreground text-background",
+    });
   }
 
   return (
