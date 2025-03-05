@@ -4,16 +4,15 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { AlignVerticalSpaceAround, ArchiveX, BellOff, SearchIcon, X } from "lucide-react";
-import { useState, useCallback, useMemo, useEffect, ReactNode } from "react";
 import { ThreadDisplay } from "@/components/mail/thread-display";
+import { useParams, useSearchParams } from "next/navigation";
 import { useMediaQuery } from "../../hooks/use-media-query";
 import { useSearchValue } from "@/hooks/use-search-value";
+import { useState, useCallback, useEffect } from "react";
 import { MailList } from "@/components/mail/mail-list";
 import { useMail } from "@/components/mail/use-mail";
 import { SidebarToggle } from "../ui/sidebar-toggle";
 import { Skeleton } from "@/components/ui/skeleton";
-import { type Mail } from "@/components/mail/data";
-import { useParams, useSearchParams } from "next/navigation";
 import { useThreads } from "@/hooks/use-threads";
 import { Button } from "@/components/ui/button";
 import { useHotKey } from "@/hooks/use-hot-key";
@@ -23,14 +22,13 @@ import { SearchBar } from "./search-bar";
 import { cn } from "@/lib/utils";
 
 export function MailLayout() {
-  const { folder } = useParams<{ folder: string }>()
-  const [searchMode, setSearchMode] = useState(false);
-  const [searchValue] = useSearchValue();
+  const { folder } = useParams<{ folder: string }>();
+  const [searchValue, setSearchValue] = useSearchValue();
   const [mail, setMail] = useMail();
   const [isCompact, setIsCompact] = useState(false);
   const searchParams = useSearchParams();
   const [isMobile, setIsMobile] = useState(false);
-  const [filterValue, setFilterValue] = useState<"all" | "unread">("all");
+  // const [filterValue, setFilterValue] = useState<"all" | "unread">("all");
   const router = useRouter();
   const { data: session, isPending } = useSession();
 
@@ -40,24 +38,25 @@ export function MailLayout() {
     }
   }, [session?.user, isPending]);
 
-  const labels = useMemo(() => {
-    if (filterValue === "all") {
-      if (searchParams.has("category")) {
-        return [`CATEGORY_${searchParams.get("category")!.toUpperCase()}`];
-      }
-      return undefined;
-    }
-    if (filterValue) {
-      if (searchParams.has("category")) {
-        return [
-          filterValue.toUpperCase(),
-          `CATEGORY_${searchParams.get("category")!.toUpperCase()}`,
-        ];
-      }
-      return [filterValue.toUpperCase()];
-    }
-    return undefined;
-  }, [filterValue, searchParams]);
+  // not used
+  // const labels = useMemo(() => {
+  //   if (filterValue === "all") {
+  //     if (searchParams.has("category")) {
+  //       return [`CATEGORY_${searchParams.get("category")!.toUpperCase()}`];
+  //     }
+  //     return undefined;
+  //   }
+  //   if (filterValue) {
+  //     if (searchParams.has("category")) {
+  //       return [
+  //         filterValue.toUpperCase(),
+  //         `CATEGORY_${searchParams.get("category")!.toUpperCase()}`,
+  //       ];
+  //     }
+  //     return [filterValue.toUpperCase()];
+  //   }
+  //   return undefined;
+  // }, [filterValue, searchParams]);
 
   const { isLoading, isValidating } = useThreads(folder, undefined, searchValue.value, 20);
 
@@ -84,20 +83,35 @@ export function MailLayout() {
     }
   }, [mail.selected]);
 
+  useEffect(() => {
+    if (searchParams) {
+      setSearchValue((prev) => ({
+        ...prev,
+        mode: true,
+      }));
+    }
+  }, [searchParams]);
+
   const handleClose = useCallback(() => {
     setOpen(false);
     setMail((mail) => ({ ...mail, selected: null }));
   }, [setMail]);
 
   useHotKey("/", () => {
-    setSearchMode(true);
+    setSearchValue((prev) => ({
+      ...prev,
+      mode: true,
+    }));
   });
 
   useHotKey("Esc", (event) => {
     // @ts-expect-error
     event.preventDefault();
-    if (searchMode) {
-      setSearchMode(false);
+    if (searchValue.mode) {
+      setSearchValue((prev) => ({
+        ...prev,
+        mode: false,
+      }));
     }
   });
 
@@ -118,7 +132,12 @@ export function MailLayout() {
             minSize={isMobile ? 100 : 25}
           >
             <div className="bg-offsetLight dark:bg-offsetDark flex-1 flex-col overflow-y-auto shadow-inner md:flex md:rounded-2xl md:border md:shadow-sm">
-              <div className={cn("compose-gradient h-0.5 w-full transition-opacity", isValidating ? "opacity-50" : "opacity-0")} />
+              <div
+                className={cn(
+                  "compose-gradient h-0.5 w-full transition-opacity",
+                  isValidating ? "opacity-50" : "opacity-0",
+                )}
+              />
               <div
                 className={cn(
                   "sticky top-0 z-10 flex items-center justify-between gap-1.5 p-2 transition-colors",
@@ -132,19 +151,19 @@ export function MailLayout() {
                 >
                   <AlignVerticalSpaceAround />
                 </Button>
-                {searchMode && (
+                {searchValue.mode && (
                   <div className="flex flex-1 items-center justify-center gap-1.5">
                     <SearchBar />
                     <Button
                       variant="ghost"
                       className="md:h-fit md:px-2"
-                      onClick={() => setSearchMode(false)}
+                      onClick={() => setSearchValue((prev) => ({ ...prev, mode: false }))}
                     >
                       <X />
                     </Button>
                   </div>
                 )}
-                {!searchMode && (
+                {!searchValue.mode && (
                   <>
                     {mail.bulkSelected.length > 0 ? (
                       <>
@@ -177,7 +196,7 @@ export function MailLayout() {
                           <Button
                             variant="ghost"
                             className="md:h-fit md:px-2"
-                            onClick={() => setSearchMode(true)}
+                            onClick={() => setSearchValue((prev) => ({ ...prev, mode: true }))}
                           >
                             <SearchIcon />
                           </Button>

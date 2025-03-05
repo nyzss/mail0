@@ -5,9 +5,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { buildSearchQuery, SearchForm, useSearchValue } from "@/hooks/use-search-value";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Search, SlidersHorizontal, CalendarIcon, Trash2 } from "lucide-react";
-import { useSearchValue } from "@/hooks/use-search-value";
+import { useQueryStates, parseAsString, parseAsJson } from "nuqs";
 import { Separator } from "@/components/ui/separator";
 import { Calendar } from "@/components/ui/calendar";
 import { type DateRange } from "react-day-picker";
@@ -66,30 +67,35 @@ function DateFilter({ date, setDate }: { date: DateRange; setDate: (date: DateRa
   );
 }
 
-type SearchForm = {
-  subject: string;
-  from: string;
-  to: string;
-  q: string;
-  dateRange: DateRange;
-  category: string;
-  folder: string;
-};
-
 export function SearchBar() {
+  const [searchParams, setSearchParams] = useQueryStates(
+    {
+      q: parseAsString.withDefault(""),
+      from: parseAsString.withDefault(""),
+      to: parseAsString.withDefault(""),
+      subject: parseAsString.withDefault(""),
+      category: parseAsString.withDefault(""),
+      dateRange: parseAsJson((value) => value as DateRange).withDefault({
+        from: undefined,
+        to: undefined,
+      }),
+      folder: parseAsString.withDefault(""),
+    },
+    {
+      clearOnDefault: true,
+    },
+  );
+
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [, setSearchValue] = useSearchValue();
   const [value, setValue] = useState<SearchForm>({
-    folder: "",
-    subject: "",
-    from: "",
-    to: "",
-    q: "",
-    dateRange: {
-      from: undefined,
-      to: undefined,
-    },
-    category: "",
+    folder: searchParams.folder,
+    subject: searchParams.subject,
+    from: searchParams.from,
+    to: searchParams.to,
+    q: searchParams.q,
+    dateRange: searchParams.dateRange,
+    category: searchParams.category,
   });
 
   const form = useForm<SearchForm>({
@@ -104,6 +110,19 @@ export function SearchBar() {
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [form.watch]);
 
+  // update form values when URL parameters change
+  useEffect(() => {
+    form.reset({
+      folder: searchParams.folder,
+      subject: searchParams.subject,
+      from: searchParams.from,
+      to: searchParams.to,
+      q: searchParams.q,
+      dateRange: searchParams.dateRange,
+      category: searchParams.category,
+    });
+  }, [searchParams, form]);
+
   useDebounce(
     () => {
       submitSearch(value);
@@ -113,43 +132,49 @@ export function SearchBar() {
   );
 
   const submitSearch = (data: SearchForm) => {
-    const from = data.from ? `from:(${data.from})` : "";
-    const to = data.to ? `to:(${data.to})` : "";
-    const subject = data.subject ? `subject:(${data.subject})` : "";
-    const dateAfter = data.dateRange.from
-      ? `after:${format(data.dateRange.from, "MM/dd/yyyy")}`
-      : "";
-    const dateBefore = data.dateRange.to ? `before:${format(data.dateRange.to, "MM/dd/yyyy")}` : "";
-    const category = data.category ? `category:(${data.category})` : "";
-    const searchQuery = `${data.q} ${from} ${to} ${subject} ${dateAfter} ${dateBefore} ${category}`;
+    const searchQuery = buildSearchQuery(data);
     const folder = data.folder ? data.folder.toUpperCase() : "";
+
+    setSearchParams({
+      q: data.q,
+      from: data.from,
+      to: data.to,
+      subject: data.subject,
+      category: data.category,
+      dateRange: data.dateRange,
+      folder: folder,
+    });
 
     setSearchValue({
       value: searchQuery,
       highlight: data.q,
       folder: folder,
+      mode: true,
     });
   };
 
   const resetSearch = () => {
     form.reset();
+    setSearchParams(null);
     setSearchValue({
       value: "",
       highlight: "",
       folder: "",
+      mode: false,
     });
   };
 
-  // might be bad but the alternatives are less readable and intuitive,
-  // maybe to something else if we have to add more filters/search options
-  const filtering =
-    value.q.length > 0 ||
-    value.from.length > 0 ||
-    value.to.length > 0 ||
-    value.dateRange.from ||
-    value.dateRange.to ||
-    value.category ||
-    value.folder;
+  // better way to do this? this is not very readable
+  const filtering = Object.entries(value).some(([key, val]) => {
+    if (key === "dateRange") {
+      const dateRange = val as DateRange;
+      return Boolean(dateRange.from || dateRange.to);
+    }
+    if (typeof val === "string") {
+      return val.length > 0;
+    }
+    return Boolean(val);
+  });
 
   return (
     <div className="relative flex-1 md:max-w-[600px]">
