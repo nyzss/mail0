@@ -241,6 +241,13 @@ GOOGLE_REDIRECT_URI=    # Required for Gmail integration
 DATABASE_URL=          # Required: PostgreSQL connection string
 ```
 
+To be able to run `pnpm db:push` you also have to add a `.env` file to the `packages/db` folder (so `packages/db/.env`) with the following content:
+
+```env
+# Database
+DATABASE_URL=          # Required: PostgreSQL connection string
+```
+
 ### Update the PostgreSQL database accordingly
 
 Drizzle will apply the schema migrations set in `.env`
